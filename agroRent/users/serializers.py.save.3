@@ -96,32 +96,3 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         return super().update(instance, validated_data)
 
-class UnifiedOrderSerializer(TranslatableSerializerMixin, serializers.Serializer):
-    id = serializers.UUIDField()
-    type = serializers.CharField() 
-    name = serializers.CharField()
-    image = serializers.ImageField(required=False, allow_null=True)
-    size = serializers.CharField(required=False, allow_null=True)
-    
-    # SerializerMethodField har qanday formatni xatosiz qayta ishlash imkonini beradi
-    date_time = serializers.SerializerMethodField()
-    
-    status = serializers.CharField()
-    price = serializers.DecimalField(max_digits=20, decimal_places=2)
-    
-    class Meta:
-        translatable_fields = ['name', 'status']
-
-    def get_date_time(self, obj):
-        # Obyektdan sanani lug'at yoki atribut ko'rinishida olish
-        val = obj.get('date_time') if isinstance(obj, dict) else getattr(obj, 'date_time', None)
-        
-        if val is None:
-            return None
-            
-        import datetime
-        # Agar u datetime yoki date obyekti bo'lsa, ISO formatidagi stringga o'giramiz
-        if isinstance(val, (datetime.datetime, datetime.date)):
-            return val.isoformat()
-            
-        return str(val)
